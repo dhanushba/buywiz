@@ -1,7 +1,6 @@
 "use client";
 
 import { SearchResult } from "@/types";
-import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { formatNumber } from "@/lib/utils";
@@ -55,13 +54,10 @@ const SearchResultCard = ({ result }: Props) => {
     >
       <div className="product-card_img-container">
         {result.thumbnail ? (
-          <Image
+          <img
             src={result.thumbnail}
             alt={result.productName}
-            width={200}
-            height={200}
             className="product-card_img"
-            unoptimized={true}
             onError={() => {
               console.error("Failed to load image:", result.thumbnail);
             }}
