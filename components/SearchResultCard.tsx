@@ -61,10 +61,10 @@ const SearchResultCard = ({ result }: Props) => {
             width={200}
             height={200}
             className="product-card_img"
+            unoptimized={true}
             onError={() => {
               console.error("Failed to load image:", result.thumbnail);
             }}
-            unoptimized={false}
           />
         ) : (
           <div className="product-card_img bg-gray-200 flex items-center justify-center">
