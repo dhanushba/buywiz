@@ -61,7 +61,14 @@ export async function GET(request: Request) {
           );
 
           // ======================== 2 CHECK EACH PRODUCT'S STATUS & SEND EMAIL ACCORDINGLY
-          const emailNotifType = getEmailNotifType(scrapedProduct, currentProduct);
+          // Ensure scrapedProduct has valid image (use currentProduct.image as fallback)
+          const scrapedProductWithFallback = {
+            ...scrapedProduct,
+            image: scrapedProduct.image || currentProduct.image || '',
+            discountRate: scrapedProduct.discountRate || '0',
+          };
+          
+          const emailNotifType = getEmailNotifType(scrapedProductWithFallback, currentProduct);
 
           if (emailNotifType && currentProduct.users.length > 0) {
             // Updated productInfo with more details
