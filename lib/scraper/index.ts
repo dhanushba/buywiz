@@ -7,19 +7,19 @@ import { extractCurrency, extractPrice } from "../utils";
 import { ProductDescription } from "@/types";
 
 // BrightData proxy configuration
-const username = String(process.env.BRIGHT_DATA_USERNAME);
-const password = String(process.env.BRIGHT_DATA_PASSWORD);
+const username = String(process.env.BRIGHT_DATA_USERNAME || '');
+const password = String(process.env.BRIGHT_DATA_PASSWORD || '');
 const port = 22225;
 const session_id = (1000000 * Math.random()) | 0;
 
 const puppeteer_config = {
   headless: true,
   slowMo: 50,
-  executablePath: "/usr/bin/chromium",
+  executablePath: process.env.CHROMIUM_PATH || "/usr/bin/chromium",
   args: ["--no-sandbox", "--disable-setuid-sandbox"],
 };
 
-const options = {
+const options = username && password ? {
   auth: {
     username: `${username}-session-${session_id}`,
     password,
@@ -27,7 +27,7 @@ const options = {
   host: "brd.superproxy.io",
   port,
   rejectUnauthorized: false,
-};
+} : {}; // Use direct connection if proxy credentials not provided
 
 /**
  * Generic scrape method for scraping product details from the given url

@@ -157,10 +157,20 @@ const transporter = nodemailer.createTransport({
   port: 587,
   secure: false,
   auth: {
-    user: 'buywiz11@gmail.com',
+    user: process.env.GMAIL_USER_EMAIL || 'buywiz@gmail.com',
     pass: process.env.GMAIL_APP_PASSWORD,
   },
 });
+
+// Validate required email environment variables in production
+if (process.env.NODE_ENV === 'production') {
+  if (!process.env.GMAIL_USER_EMAIL) {
+    console.error('WARNING: GMAIL_USER_EMAIL environment variable is not defined');
+  }
+  if (!process.env.GMAIL_APP_PASSWORD) {
+    console.error('WARNING: GMAIL_APP_PASSWORD environment variable is not defined');
+  }
+}
 
 // export const sendEmail = async (emailContent: EmailContent, sendTo: string[]) => {
 //   const mailOptions = {
@@ -179,7 +189,7 @@ const transporter = nodemailer.createTransport({
 
 export const sendEmail = async (emailContent: EmailContent, sendTo: string[]) => {
   const mailOptions = {
-    from: 'buywiz11@gmail.com',
+    from: process.env.GMAIL_USER_EMAIL || 'buywiz@gmail.com',
     to: sendTo,
     subject: emailContent.subject,
     html: emailContent.body,

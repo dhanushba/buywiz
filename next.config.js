@@ -7,7 +7,20 @@ const nextConfig = {
   images: {
     remotePatterns: [
       {
-        hostname: "**",
+        hostname: "*.amazon.*",
+        protocol: "https",
+      },
+      {
+        hostname: "*.flipkart.com",
+        protocol: "https",
+      },
+      {
+        hostname: "*.croma.com",
+        protocol: "https",
+      },
+      {
+        hostname: "*.reliancedigital.in",
+        protocol: "https",
       },
     ],
   }
