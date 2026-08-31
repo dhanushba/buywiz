@@ -22,6 +22,7 @@ RUN apk add --no-cache chromium ca-certificates
 COPY --from=builder /app/.next .next
 COPY --from=builder /app/node_modules node_modules
 COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/public ./public
 
 # Create non-root user for security
 RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001
