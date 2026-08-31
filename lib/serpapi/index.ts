@@ -31,30 +31,35 @@ export async function getSearchResults(query: string, filters: string) {
       unknownSites: SearchResult[] = [];
 
     for (const result of results) {
-      //   if (result.immersive_product_page_token) {
-      //     const data: SearchResult = {
-      //       productName: result.title,
-      //       currentPrice: result.extracted_price,
-      //       currency: result.price.charAt(0),
-      //       productLink: result.link || "#",
-      //       thumbnail: result.thumbnail,
-      //       site: result.source,
-      //       immersive_product_page_token: result.immersive_product_page_token,
-      //     };
-      //     knownSites.push(data);
-      //     continue;
-      //   }
+      // Log first result to debug available fields
+      if (results.indexOf(result) === 0) {
+        console.log("📊 SerpAPI result sample:", JSON.stringify(result, null, 2).substring(0, 500));
+      }
+
+      // Use link if available, otherwise try product_id or immersive_product_page_token
+      let productLink = result.link;
+      if (!productLink && result.product_id) {
+        // Construct link from product_id if direct link not available
+        productLink = `https://shopping.google.com/product/${result.product_id}`;
+      }
+      if (!productLink) {
+        // Skip products with no link
+        console.warn("⚠️ Skipping product with no link:", result.title);
+        continue;
+      }
 
       const data: SearchResult = {
         productName: result.title,
         currentPrice: result.extracted_price,
         currency: result.price.charAt(0),
-        productLink: result.link || "#",
+        productLink: productLink,
         thumbnail: result.thumbnail,
         site: result.source,
         immersive_product_page_token: result.immersive_product_page_token,
       };
 
+      console.log("✅ Added product:", result.title, "Link:", productLink);
+      
       if (isKnownSite(result.source)) knownSites.push(data);
       else unknownSites.push(data);
     }

@@ -37,10 +37,12 @@ const SearchResultCard = ({ result }: Props) => {
     console.log("📌 Email:", email);
     console.log("📌 Product Link:", result.productLink);
     
-    // If link is invalid, just show alert
+    // If link is invalid, show fallback
     if (!result.productLink || result.productLink === "#") {
-      console.warn("⚠️ Invalid product link");
-      alert("This product doesn't have a valid link. Try another product.");
+      console.warn("⚠️ No valid link found, searching on Google Shopping");
+      // Fallback: search on Google Shopping
+      const searchUrl = `https://www.google.com/shopping/search?q=${encodeURIComponent(result.productName)}`;
+      window.open(searchUrl, "_blank");
       return;
     }
     
