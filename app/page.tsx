@@ -24,8 +24,6 @@ const Home = async () => {
       // console.log("Fetched Products:", allProducts);
     }
   }
-  else
-    console.log("userEmail not found");
 
   return (
     <>

@@ -75,8 +75,6 @@ const ProductDetails = async ({ params }: Props) => {
       // console.log("Fetched Products:", allProducts);
     }
   }
-  else
-    console.log("userEmail not found");
 
   return (
     <div className="product-container">
