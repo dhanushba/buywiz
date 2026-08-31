@@ -33,17 +33,49 @@ const SearchResultCard = ({ result }: Props) => {
 
   const handleRedirect = async (e: any) => {
     e.preventDefault();
-    if (result.immersive_product_page_token) {
-      const product = await extractFromImmersiveProduct(
-        result.immersive_product_page_token,
-        result.thumbnail
-      );
+    console.log("📌 Clicked product:", result.productName);
+    console.log("📌 Email:", email);
+    console.log("📌 Product Link:", result.productLink);
+    
+    try {
+      if (!email) {
+        console.log("No email, opening external link");
+        // If not logged in, just open the product link
+        if (result.productLink && result.productLink !== "#") {
+          window.open(result.productLink, "_blank");
+        }
+        return;
+      }
+
+      // Try to scrape and store the product
+      console.log("🔄 Starting scrape and store...");
       const productId = await scrapeAndStoreProduct(
-        product?.productLink,
+        result.productLink,
         email
       );
-      if (productId) open(`products/${productId?.id}`, "_blank");
-    } else if (result.productLink != "#") open(result.productLink, "_blank");
+      
+      console.log("✅ Product scraped:", productId);
+      
+      if (productId && productId.id) {
+        // If successfully scraped, open our product page
+        const productPageUrl = `/products/${productId.id}`;
+        console.log("🎯 Opening product page:", productPageUrl);
+        window.open(productPageUrl, "_blank");
+      } else {
+        console.log("⚠️ No product ID returned, opening external link");
+        // If scraping failed, open the original link
+        if (result.productLink && result.productLink !== "#") {
+          window.open(result.productLink, "_blank");
+        }
+      }
+    } catch (error) {
+      console.error("❌ Error in handleRedirect:", error);
+      // Fallback: open the product link directly
+      if (result.productLink && result.productLink !== "#") {
+        console.log("Fallback: opening external link");
+        window.open(result.productLink, "_blank");
+      }
+    }
   };
 
   return (

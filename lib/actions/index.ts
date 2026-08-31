@@ -9,14 +9,23 @@ import { generateEmailBody, sendEmail } from "../nodemailer";
 import Users from "../models/users.model";
 
 export async function scrapeAndStoreProduct(productUrl: string|undefined, email: string) {
-  if (!productUrl) return;
+  if (!productUrl) {
+    console.error("No product URL provided");
+    return null;
+  }
 
   try {
     connectToDB();
+    console.log("Scraping product from:", productUrl);
 
     const scrapedProduct = await scrapeProduct(productUrl);
 
-    if (!scrapedProduct) return;
+    if (!scrapedProduct) {
+      console.error("Scraper returned null for:", productUrl);
+      return null;
+    }
+
+    console.log("✅ Product scraped successfully:", scrapedProduct.title);
 
     let product = scrapedProduct;
 
@@ -58,9 +67,12 @@ export async function scrapeAndStoreProduct(productUrl: string|undefined, email:
     revalidatePath(`/products/${newProduct._id}`);
     //revalidatePath(`/products/${newProduct._id}?email=${email}`);
 
-    return JSON.parse(JSON.stringify({ "id": newProduct._id })) // Return product id
+    const result = JSON.parse(JSON.stringify({ "id": newProduct._id }));
+    console.log("🎉 Product stored successfully with ID:", result.id);
+    return result; // Return product id
   } catch (error: any) {
-    throw new Error(`Failed to create/update product: ${error.message}`)
+    console.error("❌ Failed to create/update product:", error.message);
+    throw new Error(`Failed to create/update product: ${error.message}`);
   }
 }
 
