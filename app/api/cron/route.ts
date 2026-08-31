@@ -79,7 +79,7 @@ export async function GET(request: Request) {
               lowestPrice: lowestPrice,
               highestPrice: highestPrice,
               averagePrice: averagePrice,
-              image: updatedProduct.image,
+              image: updatedProduct.image || currentProduct.image || '',
 
             };
 
