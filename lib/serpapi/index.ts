@@ -8,8 +8,11 @@ import { getJson } from "serpapi";
  */
 export async function getSearchResults(query: string, filters: string) {
   try {
-    if (!process.env.SERPAPI_KEY) console.log("SerpApi key not defined");
-    console.log("Searching for product");
+    if (!process.env.SERPAPI_KEY) {
+      console.error("SerpApi key not defined - check environment variables");
+      throw new Error("SERPAPI_KEY not configured");
+    }
+    console.log("Searching for product:", query);
     const json = await getJson({
       engine: "google_shopping",
       q: query,
