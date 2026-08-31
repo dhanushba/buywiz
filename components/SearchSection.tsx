@@ -22,8 +22,17 @@ const SearchSection = () => {
             const results = await getSearchResults(productName, filters);
             if (!results) { console.error("Couldn't find products"); return; }
             else console.log(results);
-            setUnknownSites((results.unknownSites as Array<any>).slice(0, 8));
-            setKnownSites(results.knownSites as Array<any>);
+            
+            // Filter out results with invalid links
+            const validUnknownSites = (results.unknownSites as Array<any>)
+              .filter(r => r.productLink && r.productLink !== "#")
+              .slice(0, 8);
+            const validKnownSites = (results.knownSites as Array<any>)
+              .filter(r => r.productLink && r.productLink !== "#");
+            
+            console.log(`Filtered results: ${validKnownSites.length} known, ${validUnknownSites.length} unknown`);
+            setUnknownSites(validUnknownSites);
+            setKnownSites(validKnownSites);
         } catch (error) {
             console.log(error);
         } finally {

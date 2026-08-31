@@ -9,19 +9,19 @@ import { generateEmailBody, sendEmail } from "../nodemailer";
 import Users from "../models/users.model";
 
 export async function scrapeAndStoreProduct(productUrl: string|undefined, email: string) {
-  if (!productUrl) {
-    console.error("No product URL provided");
+  if (!productUrl || productUrl === "#") {
+    console.error("❌ Invalid or missing product URL:", productUrl);
     return null;
   }
 
   try {
     connectToDB();
-    console.log("Scraping product from:", productUrl);
+    console.log("🔍 Scraping product from:", productUrl);
 
     const scrapedProduct = await scrapeProduct(productUrl);
 
     if (!scrapedProduct) {
-      console.error("Scraper returned null for:", productUrl);
+      console.error("❌ Scraper returned null for:", productUrl);
       return null;
     }
 

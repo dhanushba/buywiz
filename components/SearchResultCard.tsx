@@ -37,13 +37,18 @@ const SearchResultCard = ({ result }: Props) => {
     console.log("📌 Email:", email);
     console.log("📌 Product Link:", result.productLink);
     
+    // Validate URL
+    if (!result.productLink || result.productLink === "#") {
+      console.warn("⚠️ Invalid product link, cannot proceed");
+      alert("This product link is not available. Please try another product.");
+      return;
+    }
+    
     try {
       if (!email) {
         console.log("No email, opening external link");
         // If not logged in, just open the product link
-        if (result.productLink && result.productLink !== "#") {
-          window.open(result.productLink, "_blank");
-        }
+        window.open(result.productLink, "_blank");
         return;
       }
 
@@ -64,17 +69,13 @@ const SearchResultCard = ({ result }: Props) => {
       } else {
         console.log("⚠️ No product ID returned, opening external link");
         // If scraping failed, open the original link
-        if (result.productLink && result.productLink !== "#") {
-          window.open(result.productLink, "_blank");
-        }
+        window.open(result.productLink, "_blank");
       }
     } catch (error) {
       console.error("❌ Error in handleRedirect:", error);
       // Fallback: open the product link directly
-      if (result.productLink && result.productLink !== "#") {
-        console.log("Fallback: opening external link");
-        window.open(result.productLink, "_blank");
-      }
+      console.log("Fallback: opening external link");
+      window.open(result.productLink, "_blank");
     }
   };
 
