@@ -28,7 +28,9 @@ const SearchResultCard = ({ result }: Props) => {
   useEffect(() => {
     const storedEmail = localStorage.getItem("email");
     if (storedEmail) setEmail(storedEmail);
-  }, []);
+    // Debug: log thumbnail URL
+    console.log("SearchResultCard thumbnail:", result.thumbnail);
+  }, [result.thumbnail]);
 
   const handleRedirect = async (e: any) => {
     e.preventDefault();
@@ -52,13 +54,23 @@ const SearchResultCard = ({ result }: Props) => {
       onClick={handleRedirect}
     >
       <div className="product-card_img-container">
-        <Image
-          src={result.thumbnail}
-          alt={result.productName}
-          width={200}
-          height={200}
-          className="product-card_img"
-        />
+        {result.thumbnail ? (
+          <Image
+            src={result.thumbnail}
+            alt={result.productName}
+            width={200}
+            height={200}
+            className="product-card_img"
+            onError={() => {
+              console.error("Failed to load image:", result.thumbnail);
+            }}
+            unoptimized={false}
+          />
+        ) : (
+          <div className="product-card_img bg-gray-200 flex items-center justify-center">
+            <span className="text-gray-400">No Image</span>
+          </div>
+        )}
       </div>
 
       <div className="flex flex-col gap-3">
