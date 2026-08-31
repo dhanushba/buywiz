@@ -61,11 +61,11 @@ export async function GET(request: Request) {
           );
 
           // ======================== 2 CHECK EACH PRODUCT'S STATUS & SEND EMAIL ACCORDINGLY
-          // Ensure scrapedProduct has valid image (use currentProduct.image as fallback)
+          // Ensure scrapedProduct has valid image and discountRate (use fallbacks)
           const scrapedProductWithFallback = {
             ...scrapedProduct,
             image: scrapedProduct.image || currentProduct.image || '',
-            discountRate: scrapedProduct.discountRate || '0',
+            discountRate: Number(scrapedProduct.discountRate) || 0,
           };
           
           const emailNotifType = getEmailNotifType(scrapedProductWithFallback, currentProduct);
