@@ -33,35 +33,32 @@ export async function getSearchResults(query: string, filters: string) {
     for (const result of results) {
       // Log first result to debug available fields
       if (results.indexOf(result) === 0) {
-        console.log("📊 SerpAPI result sample:", JSON.stringify(result, null, 2).substring(0, 500));
+        console.log("📊 SerpAPI result sample fields:", Object.keys(result));
+        console.log("📊 Sample data:", JSON.stringify(result, null, 2).substring(0, 800));
       }
 
-      // Use link if available, otherwise try product_id or immersive_product_page_token
-      let productLink = result.link;
-      if (!productLink && result.product_id) {
-        // Construct link from product_id if direct link not available
-        productLink = `https://shopping.google.com/product/${result.product_id}`;
-      }
-      if (!productLink) {
-        // Skip products with no link
-        console.warn("⚠️ Skipping product with no link:", result.title);
+      // For Google Shopping results, we should use immersive_product_page_token to get store links
+      // Skip products without immersive token as they won't have store links
+      if (!result.immersive_product_page_token) {
+        console.warn("⚠️ Skipping product without immersive token:", result.title);
         continue;
       }
 
+      // Use the original Google Shopping link as fallback
+      let productLink = result.link || `https://shopping.google.com/product/${result.product_id}`;
+
       const data: SearchResult = {
         productName: result.title,
-        currentPrice: result.extracted_price,
-        currency: result.price.charAt(0),
+        currentPrice: result.extracted_price || 0,
+        currency: result.price?.charAt(0) || "₹",
         productLink: productLink,
         thumbnail: result.thumbnail,
-        site: result.source,
+        site: result.source || "Google Shopping",
         immersive_product_page_token: result.immersive_product_page_token,
       };
 
-      console.log("✅ Added product:", result.title, "Link:", productLink);
-      
-      if (isKnownSite(result.source)) knownSites.push(data);
-      else unknownSites.push(data);
+      console.log("✅ Added product with immersive token:", result.title);
+      unknownSites.push(data); // Add to unknown sites, will be processed with immersive token
     }
     return { knownSites, unknownSites };
   } catch (error) {

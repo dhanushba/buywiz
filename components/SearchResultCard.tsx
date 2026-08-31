@@ -34,46 +34,49 @@ const SearchResultCard = ({ result }: Props) => {
   const handleRedirect = async (e: any) => {
     e.preventDefault();
     console.log("📌 Clicked product:", result.productName);
-    console.log("📌 Email:", email);
-    console.log("📌 Product Link:", result.productLink);
-    
-    // If link is invalid, show fallback
-    if (!result.productLink || result.productLink === "#") {
-      console.warn("⚠️ No valid link found, searching on Google Shopping");
-      // Fallback: search on Google Shopping
-      const searchUrl = `https://www.google.com/shopping/search?q=${encodeURIComponent(result.productName)}`;
-      window.open(searchUrl, "_blank");
-      return;
-    }
+    console.log("📌 Has immersive token:", !!result.immersive_product_page_token);
     
     try {
-      if (!email) {
-        console.log("No email, opening external link");
-        window.open(result.productLink, "_blank");
-        return;
+      // If we have an immersive token, use it to get real store links
+      if (result.immersive_product_page_token) {
+        console.log("🔍 Extracting store links from immersive product page...");
+        const product = await extractFromImmersiveProduct(
+          result.immersive_product_page_token,
+          result.thumbnail
+        );
+        
+        if (product && product.productLink) {
+          console.log("✅ Got store link from immersive:", product.productLink);
+          
+          if (!email) {
+            // Not logged in, just open the link
+            window.open(product.productLink, "_blank");
+            return;
+          }
+
+          // Try to scrape and store
+          console.log("🔄 Scraping product from store link...");
+          const productId = await scrapeAndStoreProduct(product.productLink, email);
+          
+          if (productId && productId.id) {
+            window.open(`/products/${productId.id}`, "_blank");
+          } else {
+            window.open(product.productLink, "_blank");
+          }
+          return;
+        }
       }
 
-      // Try to scrape and store the product
-      console.log("🔄 Starting scrape and store...");
-      const productId = await scrapeAndStoreProduct(
-        result.productLink,
-        email
-      );
+      // Fallback to Google Shopping search if immersive extraction failed
+      console.log("⚠️ Fallback: searching on Google Shopping");
+      const searchUrl = `https://www.google.com/shopping/search?q=${encodeURIComponent(result.productName)}`;
+      window.open(searchUrl, "_blank");
       
-      console.log("✅ Product scraped:", productId);
-      
-      if (productId && productId.id) {
-        const productPageUrl = `/products/${productId.id}`;
-        console.log("🎯 Opening product page:", productPageUrl);
-        window.open(productPageUrl, "_blank");
-      } else {
-        console.log("⚠️ Scraping failed, opening external link");
-        window.open(result.productLink, "_blank");
-      }
     } catch (error) {
       console.error("❌ Error in handleRedirect:", error);
-      console.log("Fallback: opening external link");
-      window.open(result.productLink, "_blank");
+      // Final fallback
+      const searchUrl = `https://www.google.com/shopping/search?q=${encodeURIComponent(result.productName)}`;
+      window.open(searchUrl, "_blank");
     }
   };
 
